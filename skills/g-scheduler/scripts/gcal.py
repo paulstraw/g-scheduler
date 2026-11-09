@@ -3,6 +3,8 @@
 
   gcal.py check [EMAIL]
       Check that gws works, and that working hours can be read (yours, and EMAIL's).
+  gcal.py find NAME...
+      Look people up in your organization's directory by name or email.
   gcal.py gather EMAIL... --start S --end E [--time-zone TZ] [--duration MIN]
                  [--optional EMAIL]... [--exclude-me]
       Print the input JSON for slots.py. Adds you as an attendee unless --exclude-me.
@@ -43,7 +45,8 @@ def gws(*args):
     if proc.returncode != 0 or "error" in data:
         error = data.get("error") or {}
         raise GwsError(
-            error.get("reason") or error.get("message") or proc.stderr.strip()
+            (error.get("reason") if error.get("reason") != "unknown" else None)
+            or error.get("message") or proc.stderr.strip()
             or f"gws exited with code {proc.returncode}"
         )
     return data
@@ -69,6 +72,20 @@ def check(args):
         except GwsError as e:
             result["colleague"] = {"email": args.email, "error": str(e)}
     return result
+
+
+def find(args):
+    results = {}
+    for query in args.names:
+        params = {"query": query, "readMask": "names,emailAddresses", "pageSize": 10,
+                  "sources": ["DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE"]}
+        people = gws("people", "people", "searchDirectoryPeople", "--params", json.dumps(params))
+        results[query] = [
+            {"name": (person.get("names") or [{}])[0].get("displayName"),
+             "emails": [e["value"] for e in person.get("emailAddresses", []) if e.get("value")]}
+            for person in people.get("people", [])
+        ]
+    return results
 
 
 def gather(args):
@@ -134,6 +151,9 @@ def main(argv):
     p = commands.add_parser("check")
     p.add_argument("email", nargs="?")
     p.set_defaults(run=check)
+    p = commands.add_parser("find")
+    p.add_argument("names", nargs="+")
+    p.set_defaults(run=find)
     p = commands.add_parser("gather")
     p.add_argument("emails", nargs="+")
     p.add_argument("--start", required=True, help="date (YYYY-MM-DD) or RFC3339 time")
