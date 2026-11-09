@@ -41,7 +41,7 @@ def starts(result):
 
 class FindSlotsTest(unittest.TestCase):
     def test_prefers_earlier_days_and_avoids_the_first_half_hour(self):
-        result = run([person("a@x.com", "America/Los_Angeles", hours(9, 17))], "2026-11-10", "2026-11-11")
+        result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17))], "2026-11-10", "2026-11-11")
         # Los Angeles is UTC-8 in November: 09:30 local is 17:30Z.
         self.assertEqual(starts(result)[:3],
                          ["2026-11-10T17:30:00Z", "2026-11-10T18:30:00Z", "2026-11-11T17:30:00Z"])
@@ -49,7 +49,7 @@ class FindSlotsTest(unittest.TestCase):
 
     def test_working_hours_follow_dst(self):
         # US DST ends Sunday 2026-11-01: Los Angeles goes from UTC-7 to UTC-8.
-        result = run([person("a@x.com", "America/Los_Angeles", hours(9, 17))],
+        result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17))],
                      "2026-10-30", "2026-11-02", max_per_day=1)
         self.assertEqual(starts(result), ["2026-10-30T16:30:00Z", "2026-11-02T17:30:00Z"])
 
@@ -59,27 +59,27 @@ class FindSlotsTest(unittest.TestCase):
             {"dayOfWeek": "tuesday", "periodStart": 780, "periodEnd": 1020}]}
         busy = [("2026-11-10T17:00:00Z", "2026-11-10T19:00:00Z"),  # 09:00-11:00 local
                 ("2026-11-10T22:00:00Z", "2026-11-11T01:00:00Z")]  # 14:00-17:00 local
-        result = run([person("a@x.com", "America/Los_Angeles", split, busy)],
+        result = run([person("a@example.com", "America/Los_Angeles", split, busy)],
                      "2026-11-10", "2026-11-10", max_per_day=5)
         # Only 11:00-12:00 and 13:00-14:00 fit; 11:30 and 12:00 would cross the lunch gap.
         self.assertEqual(starts(result), ["2026-11-10T19:00:00Z", "2026-11-10T21:00:00Z"])
 
     def test_attendees_in_different_time_zones(self):
-        result = run([person("la@x.com", "America/Los_Angeles", hours(9, 17)),
-                      person("hfx@x.com", "America/Halifax", hours(10, 19))],
+        result = run([person("la@example.com", "America/Los_Angeles", hours(9, 17)),
+                      person("hfx@example.com", "America/Halifax", hours(10, 19))],
                      "2026-11-10", "2026-11-10", max_per_day=5)
         # Los Angeles 17:00Z-01:00Z, Halifax (UTC-4) 14:00Z-23:00Z: overlap 17:00Z-23:00Z.
         first = result["slots"][0]
         self.assertEqual(first["start"], "2026-11-10T17:30:00Z")
-        self.assertEqual(first["local"]["hfx@x.com"], "Tue 2026-11-10 13:30-14:30 America/Halifax")
+        self.assertEqual(first["local"]["hfx@example.com"], "Tue 2026-11-10 13:30-14:30 America/Halifax")
         for s in result["slots"]:
             self.assertGreaterEqual(s["start"], "2026-11-10T17:00:00Z")
             self.assertLessEqual(s["end"], "2026-11-10T23:00:00Z")
 
     def test_no_shared_hours_falls_back_to_fewest_missing(self):
         # Los Angeles 17:00Z-01:00Z and Brussels (UTC+1) 08:00Z-16:00Z never overlap.
-        result = run([person("la@x.com", "America/Los_Angeles", hours(9, 17)),
-                      person("bru@x.com", "Europe/Brussels", hours(9, 17))],
+        result = run([person("la@example.com", "America/Los_Angeles", hours(9, 17)),
+                      person("bru@example.com", "Europe/Brussels", hours(9, 17))],
                      "2026-11-10", "2026-11-11")
         self.assertFalse(result["all_required_free"])
         self.assertTrue(result["slots"])
@@ -88,8 +88,8 @@ class FindSlotsTest(unittest.TestCase):
 
     def test_nobody_free_returns_no_slots(self):
         busy = [("2026-11-01T00:00:00Z", "2026-11-20T00:00:00Z")]
-        result = run([person("a@x.com", "America/Los_Angeles", hours(9, 17), busy),
-                      person("b@x.com", "America/Los_Angeles", hours(9, 17), busy)],
+        result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17), busy),
+                      person("b@example.com", "America/Los_Angeles", hours(9, 17), busy)],
                      "2026-11-10", "2026-11-12")
         self.assertEqual(result["slots"], [])
         self.assertFalse(result["all_required_free"])
@@ -98,40 +98,40 @@ class FindSlotsTest(unittest.TestCase):
         stale = hours(6, 8)
         stale["workingHoursEnabled"] = False
         empty = {"workingHoursEnabled": True, "availableTimes": []}
-        people = [person("missing@x.com", "America/Sao_Paulo"),
-                  person("disabled@x.com", "America/Sao_Paulo", stale),
-                  person("empty@x.com", "America/Sao_Paulo", empty)]
+        people = [person("missing@example.com", "America/Sao_Paulo"),
+                  person("disabled@example.com", "America/Sao_Paulo", stale),
+                  person("empty@example.com", "America/Sao_Paulo", empty)]
         result = run(people, "2026-11-10", "2026-11-10")
         self.assertEqual([a["hours"] for a in result["attendees"]], ["assumed"] * 3)
-        self.assertIn("missing@x.com, disabled@x.com, empty@x.com", " ".join(result["warnings"]))
+        self.assertIn("missing@example.com, disabled@example.com, empty@example.com", " ".join(result["warnings"]))
         # Sao Paulo is UTC-3: assumed 09:30 local is 12:30Z, not the stale 06:00-08:00.
         self.assertEqual(starts(result)[0], "2026-11-10T12:30:00Z")
 
     def test_optional_attendee_can_be_missing(self):
-        result = run([person("a@x.com", "America/Los_Angeles", hours(9, 17)),
-                      person("b@x.com", "America/Los_Angeles", hours(9, 17),
+        result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17)),
+                      person("b@example.com", "America/Los_Angeles", hours(9, 17),
                              [("2026-11-10T00:00:00Z", "2026-11-11T08:00:00Z")], optional=True)],
                      "2026-11-10", "2026-11-10")
         self.assertTrue(result["all_required_free"])
-        self.assertEqual(result["slots"][0]["missing_optional"], ["b@x.com"])
+        self.assertEqual(result["slots"][0]["missing_optional"], ["b@example.com"])
 
     def test_unreadable_busy_is_left_out_and_warned(self):
-        result = run([person("a@x.com", "America/Los_Angeles", hours(9, 17)),
-                      person("gone@x.com", "America/Los_Angeles", busy_error="notFound")],
+        result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17)),
+                      person("gone@example.com", "America/Los_Angeles", busy_error="notFound")],
                      "2026-11-10", "2026-11-10")
         self.assertTrue(result["all_required_free"])
-        self.assertIn("gone@x.com: free/busy unreadable (notFound)", " ".join(result["warnings"]))
+        self.assertIn("gone@example.com: free/busy unreadable (notFound)", " ".join(result["warnings"]))
 
     def test_unreadable_calendar_uses_organizer_zone_and_assumed_hours(self):
-        result = run([{"email": "ext@y.com", "calendar_error": "notFound", "busy": []}],
+        result = run([{"email": "ext@example.org", "calendar_error": "notFound", "busy": []}],
                      "2026-11-10", "2026-11-10")
-        self.assertIn("ext@y.com: calendar unreadable (notFound); using America/Los_Angeles.",
+        self.assertIn("ext@example.org: calendar unreadable (notFound); using America/Los_Angeles.",
                       result["warnings"])
         self.assertEqual(result["attendees"][0]["hours"], "assumed")
         self.assertEqual(starts(result)[0], "2026-11-10T17:30:00Z")
 
     def test_slots_never_start_before_now(self):
-        result = run([person("a@x.com", "America/Los_Angeles", hours(9, 17))],
+        result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17))],
                      "2026-11-10", "2026-11-10", now="2026-11-10T19:50:00Z")
         self.assertEqual(starts(result)[0], "2026-11-10T20:00:00Z")
 
@@ -139,7 +139,7 @@ class FindSlotsTest(unittest.TestCase):
 class CommandLineTest(unittest.TestCase):
     def test_reads_stdin_and_writes_json(self):
         data = {"time_zone": "America/Los_Angeles", "range": {"start": "2026-11-10", "end": "2026-11-10"},
-                "now": "2026-10-01T00:00:00Z", "attendees": [person("a@x.com", "America/Los_Angeles", hours(9, 17))]}
+                "now": "2026-10-01T00:00:00Z", "attendees": [person("a@example.com", "America/Los_Angeles", hours(9, 17))]}
         out = subprocess.run([sys.executable, str(SCRIPT)], input=json.dumps(data),
                              capture_output=True, text=True, check=True)
         self.assertEqual(json.loads(out.stdout)["slots"][0]["start"], "2026-11-10T17:30:00Z")
