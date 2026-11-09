@@ -9,7 +9,7 @@ g-scheduler reads calendars through Google's [`gws`](https://github.com/googlewo
 Check: `python3 --version` (Windows: `python --version`).
 
 - macOS: the built-in `python3` works. If it is missing, run `xcode-select --install`.
-- Windows: install from python.org, then run `python -m pip install tzdata` (Windows has no time zone data of its own).
+- Windows: Windows has no Python of its own. If `python` opens the Microsoft Store or fails, install the Python install manager with `winget install 9NQ7512CXL7T` (or from the Microsoft Store), then open a new terminal. Then run `python -m pip install tzdata`, because Windows also has no time zone data Python can use.
 - Linux: use the distribution's `python3` package.
 
 ## Step 2: Install gws
