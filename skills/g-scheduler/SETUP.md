@@ -4,11 +4,11 @@ g-scheduler reads calendars through Google's [`gws`](https://github.com/googlewo
 
 **For the agent:** walk the user through this one step at a time. After each step, run the check it names before moving on. If a check fails, look in Troubleshooting below.
 
-## Step 1: Python 3.10+
+## Step 1: Python 3.9+
 
 Check: `python3 --version` (Windows: `python --version`).
 
-- macOS: `brew install python`. The system Python 3.9 is too old.
+- macOS: the built-in `python3` works. If it is missing, run `xcode-select --install`.
 - Windows: install from python.org, then run `python -m pip install tzdata` (Windows has no time zone data of its own).
 - Linux: use the distribution's `python3` package.
 

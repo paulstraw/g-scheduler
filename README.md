@@ -15,7 +15,7 @@ The agent resolves the people to email addresses (here with its Slack tools), re
 ## Requirements
 
 - An agent with a shell and network access: Claude Code, or the Code tab in Claude Desktop. The Chat tab in Claude Desktop, claude.ai, and cloud Cowork are not supported.
-- Python 3.10+.
+- Python 3.9+.
 - Google's [`gws`](https://github.com/googleworkspace/cli) CLI, signed in with a Google Workspace account. The skill walks you through setup on first use; see [SETUP.md](skills/g-scheduler/SETUP.md).
 
 ## How it decides

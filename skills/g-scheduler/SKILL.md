@@ -7,7 +7,7 @@ description: Find good meeting times for a group of Google Workspace users, insi
 
 Find meeting slots where every attendee is free and inside their own working hours, then (only if asked) create the invite. Two bundled scripts do the Google calls and the time math. Never do time-zone or DST arithmetic yourself: use their output.
 
-Run the scripts with `python3` (on Windows, `python` or `py`) from this skill's directory: `scripts/gcal.py` and `scripts/slots.py`. They need Python 3.10+.
+Run the scripts with `python3` (on Windows, `python` or `py`) from this skill's directory: `scripts/gcal.py` and `scripts/slots.py`. They need Python 3.9+.
 
 ## 1. Check access
 

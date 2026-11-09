@@ -11,7 +11,7 @@ An agent skill that finds meeting times inside each attendee's Google Calendar w
 
 ## Rules
 
-- Python 3.10+, standard library only. `tzdata` is the only optional extra (Windows).
+- Python 3.9+, standard library only. `tzdata` is the only optional extra (Windows).
 - Scripts must work on macOS, Linux, and Windows.
 - No organization-specific details (domains, emails, vault links) and never an OAuth client file in the repo.
 - Never write to anyone's working hours. `invite` is the only write, and it always uses `sendUpdates=all`.
@@ -23,7 +23,7 @@ An agent skill that finds meeting times inside each attendee's Google Calendar w
 python3 -m unittest discover -s tests -v
 ```
 
-CI runs this on Ubuntu, macOS, and Windows with Python 3.10 and the latest 3.x.
+CI runs this on Ubuntu, macOS, and Windows with Python 3.9 and the latest 3.x.
 
 ## Commits
 
