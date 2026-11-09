@@ -130,6 +130,14 @@ class FindSlotsTest(unittest.TestCase):
         self.assertEqual(result["attendees"][0]["hours"], "assumed")
         self.assertEqual(starts(result)[0], "2026-11-10T17:30:00Z")
 
+    def test_exact_time_range_checks_that_one_meeting(self):
+        busy = [("2026-11-10T19:00:00Z", "2026-11-10T19:30:00Z")]  # 11:00-11:30 Los Angeles
+        people = [person("a@example.com", "America/Los_Angeles", hours(9, 17)),
+                  person("b@example.com", "America/Los_Angeles", hours(9, 17), busy)]
+        result = run(people, "2026-11-10T11:15:00-08:00", "2026-11-10T12:15:00-08:00")
+        self.assertEqual(starts(result), ["2026-11-10T19:15:00Z"])
+        self.assertEqual(result["slots"][0]["missing"], ["b@example.com"])
+
     def test_slots_never_start_before_now(self):
         result = run([person("a@example.com", "America/Los_Angeles", hours(9, 17))],
                      "2026-11-10", "2026-11-10", now="2026-11-10T19:50:00Z")

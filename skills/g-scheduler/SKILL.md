@@ -34,12 +34,16 @@ python3 scripts/gcal.py gather a@example.com b@example.com --start 2026-11-10 --
 
 The output has `slots` (up to 5, at most 2 per day, earliest first), `all_required_free`, `attendees`, and `warnings`. Each slot has `local` times for every attendee and the user's zone, `missing`, `missing_optional`, and `at_day_edge` (people for whom it's in the first or last 30 minutes of their day).
 
+Read the whole output. Don't filter it (for example with `jq` or `python -c`), because that drops `warnings`.
+
+**To check one specific time** (the user proposes a time, a slot isn't listed, or an attendee is added late), run the same pipeline for **all** attendees with `--start` and `--end` set to exactly that meeting, as RFC3339 times with an offset: `--start 2026-11-19T11:00:00-08:00 --end 2026-11-19T12:00:00-08:00`. The single slot in the output says who is missing. Never work out availability from raw busy times yourself.
+
 ## 4. Present the results
 
 - List the slots in the user's time zone, with each attendee's local time when zones differ.
 - Repeat every warning in plain words. Name people whose working hours were assumed (09:00-17:00 weekdays in their zone) and anyone who was left out because their calendar couldn't be read.
 - State the assumed length if the user didn't give one.
-- If `all_required_free` is false, say who is missing from each slot and offer to rerun with those people as `--optional`.
+- If `all_required_free` is false, say who is missing from each slot and ask whether to rerun with any of them as `--optional`. Only the user decides who is optional; never mark someone optional on your own.
 - If `slots` is empty, say so and suggest a wider range or a shorter meeting.
 
 ## 5. Create the invite (only when asked)

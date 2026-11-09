@@ -155,10 +155,13 @@ def find_slots(data):
     required = [p for p in known if not p["optional"]]
 
     candidates = []
-    epoch_minutes = int(start.timestamp() // 60)
-    slot = start.replace(second=0, microsecond=0) + timedelta(minutes=-epoch_minutes % step)
-    if slot < start:
-        slot += timedelta(minutes=step)
+    slot = start
+    if start == now:
+        # Starting from "now": round up to the next step so slots begin at tidy times.
+        epoch_minutes = int(start.timestamp() // 60)
+        slot = start.replace(second=0, microsecond=0) + timedelta(minutes=-epoch_minutes % step)
+        if slot < start:
+            slot += timedelta(minutes=step)
     while slot + duration <= end:
         slot_end = slot + duration
         missing, missing_optional, edge = [], [], []
