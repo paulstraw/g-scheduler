@@ -18,7 +18,7 @@ Run `python3 scripts/gcal.py check`.
 
 ## 2. Collect the inputs
 
-- **Attendees:** resolve everyone to Google Workspace email addresses. For names without an email, run `python3 scripts/gcal.py find "Ada Lovelace" "Grace"`, which searches the organization's directory; other tools you have (Slack, the user's message) work too. If `find` fails with a scope or `accessNotConfigured` error, directory lookup isn't set up (SETUP.md, Steps 3 and 4): mention it once and use other tools. If an email is missing, ambiguous, or looks outside the user's organization, ask. The user is added automatically; pass `--exclude-me` only if they say they won't attend.
+- **Attendees:** resolve everyone to Google Workspace email addresses. For names without an email, run `python3 scripts/gcal.py find "Ada Lovelace" "Grace"`, which searches the organization's directory; other tools you have (Slack, the user's message) work too. If `find` fails (missing scope, `accessNotConfigured`, or the admin has disabled directory sharing), name lookup isn't available: mention the reason once, point to SETUP.md Troubleshooting, and use other tools. If an email is missing, ambiguous, or looks outside the user's organization, ask. The user is added automatically; pass `--exclude-me` only if they say they won't attend.
 - **Date range:** keep it simple. "Next 2 weeks" means today through about 18 days out (sooner slots already rank first). A specific day means just that day. Dates are `YYYY-MM-DD`; the end date is inclusive.
 - **Length:** default 60 minutes. Don't ask; say you assumed it.
 - **Optional people:** don't ask up front. Treat everyone as required.

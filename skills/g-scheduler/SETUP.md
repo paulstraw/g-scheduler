@@ -54,7 +54,7 @@ Run:
 gws auth login --scopes https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/directory.readonly
 ```
 
-A browser opens on this computer. Sign in with your work account and approve access to your calendars and your organization's directory. It's finished when the page says "You may now close this window." Signing in again replaces the previous sign-in.
+A browser opens on this computer. Sign in with your work account and approve access to your calendars and your organization's directory. It's finished when the page says "You may now close this window." Signing in again replaces the previous sign-in. If you are signing in again to add access, first delete `~/.config/gws/token_cache.json`, or `gws` keeps using the old access token for up to an hour.
 
 Checks (from the skill folder):
 
@@ -77,7 +77,9 @@ Check: `python3 scripts/gcal.py check colleague@yourcompany.com`, using someone 
 | "This app is blocked" | Your Workspace admin restricts third-party apps. Ask them to mark the OAuth client as trusted in the Admin console (API controls). |
 | `redirect_uri_mismatch` | The client isn't a Desktop app. Create a new Desktop app client and replace the JSON. |
 | `accessNotConfigured` or "API has not been used in project" | Enable the API it names (Calendar, or People for `find`) in the same project as the client (Step 3, Option B, item 2), wait a minute, retry. |
-| `find` fails with "insufficient authentication scopes" | Sign in again with the command in Step 4, which includes directory access. |
+| `find` fails with "insufficient authentication scopes" | Delete `~/.config/gws/token_cache.json`, then sign in again with the command in Step 4. |
+| `find` fails with "The G Suite domain admin has disabled external directory sharing" | Your Workspace blocks third-party apps, including g-scheduler, from reading the directory. "External" means apps, not people outside your organization. A Workspace admin can allow it in the Admin console: Directory → Directory settings → Sharing settings → **External Directory Sharing** → "Organization data and authenticated user basic profile fields" ([Google's help page](https://support.google.com/a/answer/6343701)). Until then, everything except name lookup still works; the agent finds emails another way or asks you. |
+| Sign-in fails with "Error 400: invalid_request" right after enabling an API | Wait a few minutes and run the sign-in command again. |
 | `gws failed: ...` mentioning credentials or token | Sign in again with the command in Step 4. Check with `gws auth status`. |
 | `gws is not installed or not on PATH` | Repeat Step 2, then open a new terminal. |
 | "Python has no time zone data" | `python -m pip install tzdata` |
