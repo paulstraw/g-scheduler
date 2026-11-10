@@ -12,6 +12,8 @@ Then ask your agent something like:
 
 The agent resolves the people to email addresses (here with its Slack tools), reads their working hours and free/busy, and suggests a few slots with each person's local time. If you ask, it previews the invite and sends it after you confirm.
 
+![g-scheduler suggesting meeting times for people who reacted to a Slack message, with who can't make each slot and everyone's local times](docs/example.webp)
+
 ## Requirements
 
 - An agent with a shell and network access: Claude Code, or the Code tab in Claude Desktop. The Chat tab in Claude Desktop, claude.ai, and cloud Cowork are not supported.
